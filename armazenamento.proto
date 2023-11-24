@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package armazenamento;
+
+service ArmazenamentoChaveValor {
+  rpc inserir (InsertRequest) returns (InsertResponse) {}
+  rpc consultar (QueryRequest) returns (QueryResponse) {}
+  rpc ativar (ActivateRequest) returns (ActivateResponse) {}
+  rpc terminar (TerminateRequest) returns (TerminateResponse) {}
+}
+
+message InsertRequest {
+  int32 chave = 1;
+  string valor = 2;
+}
+
+message InsertResponse {
+  int32 retorno = 1;  //  0 se operacao bem sucedida
+                      // -1 se a chave ja existe
+}
+
+
+message QueryRequest {
+  int32 chave = 1;
+}
+
+message QueryResponse {
+  string valor = 1;   //  string associado, caso chave exista
+                      //  valor nulo caso nao exista
+}
+
+
+message ActivateRequest {
+  string id_servico = 1; //  IP e porto do servidor e.g. 'localhost:8888'
+}
+
+message ActivateResponse {
+  int32 retorno = 1;  //  0 se nao conecta a um servidor centralizadaor
+}
+
+
+message TerminateRequest {} //  nao tem parametros
+
+message TerminateResponse {
+  int32 retorno = 1; //  retorna 0
+}
