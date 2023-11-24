@@ -3,9 +3,9 @@ Disciplina: Fundamentos de Sistemas Paralelos e Distribuídos 2023/2 - DCC UFMG
 Autora: Deborah Santos Andrade Guimarães (deborah.guimaraes@dcc.ufmg.br)
 
 Segunda parte: cliente do servidor centralizador
-"""
 
-"""
+########################################################################################################################
+
 Requisições:
 
 mapeamento:

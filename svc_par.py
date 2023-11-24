@@ -4,7 +4,7 @@ Autora: Deborah Santos Andrade Guimarães (deborah.guimaraes@dcc.ufmg.br)
 
 Primeira parte: servidor de pares (chave, valor)
 
-##############################################################################
+########################################################################################################################
 
 Procedimentos fornecidos:
 
