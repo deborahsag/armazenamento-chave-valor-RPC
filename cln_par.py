@@ -36,42 +36,46 @@ import armazenamento_pb2, armazenamento_pb2_grpc
 
 def client_par():
     # Argumento da linha de comando
-    porto  = sys.argv[1]
+    id_servico  = sys.argv[1]
 
-    # Primeiro, é preciso abrir um canal para o servidor
-    channel = grpc.insecure_channel(f'0.0.0.0:{porto}')
+    # Abrir um canal para o servidor
+    channel = grpc.insecure_channel(id_servico)
 
-    # E criar o stub, que vai ser o objeto com referências para os
-    # procedimentos remotos (código gerado pelo compilador)
+    # Criar o stub, que vai ser o objeto com referências para os procedimentos remotos (código gerado pelo compilador)
     stub = armazenamento_pb2_grpc.ArmazenamentoChaveValorStub(channel)
 
     while True:
         try:
+            # Entrada padrão
             client_input = input()
             commands = client_input.split(',', maxsplit=2)
 
+            # Inserção
             if commands[0] == 'I':
                 chave = int(commands[1])
                 valor = commands[2]
                 response = stub.inserir(armazenamento_pb2.InsertRequest(chave=chave, valor=valor))
                 print(response.retorno)
 
+            # Consulta
             elif commands[0] == 'C':
                 chave = int(commands[1])
                 response = stub.consultar(armazenamento_pb2.QueryRequest(chave=chave))
                 print(response.valor)
 
+            # Ativação
             elif commands[0] == 'A':
                 id_servico = commands[1]
                 response = stub.ativar(armazenamento_pb2.ActivateRequest(id_servico=id_servico))
                 print(response.retorno)
 
+            # Término
             elif commands[0] == 'T':
                 response = stub.terminar(armazenamento_pb2.TerminateRequest())
                 print(response.retorno)
 
                 # Ao desconectar do servidor o cliente pode fechar o canal.
-                # channel.close()
+                channel.close()
 
             else:
                 continue

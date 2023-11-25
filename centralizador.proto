@@ -1,0 +1,40 @@
+/*
+Disciplina: Fundamentos de Sistemas Paralelos e Distribuídos 2023/2 - DCC UFMG
+Autora: Deborah Santos Andrade Guimarães (deborah.guimaraes@dcc.ufmg.br)
+*/
+
+syntax = "proto3";
+
+package centralizador;
+
+service CentralizadorChaveValor {
+  rpc registrar (RegisterRequest) returns (RegisterResponse) {}
+  rpc mapear (MapRequest) returns (MapResponse) {}
+  rpc terminar (TerminateRequest) returns (TerminateResponse) {}
+}
+
+
+message RegisterRequest {
+  string id_servico = 1;
+  repeated int32 chaves = 2;
+}
+
+message RegisterResponse {
+  int32 num_chaves = 1;
+}
+
+
+message MapRequest {
+  int32 chave = 1;
+}
+
+message MapResponse {
+  string id_servico = 1;
+}
+
+
+message TerminateRequest {}
+
+message TerminateResponse {
+  int32 num_chaves = 1;
+}

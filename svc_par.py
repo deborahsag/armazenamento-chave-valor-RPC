@@ -30,20 +30,21 @@ import sys
 
 from concurrent import futures  # usado na definição do pool de threads
 import threading
+import socket
 
 import grpc
 
 import armazenamento_pb2, armazenamento_pb2_grpc    # módulos gerados pelo compilador de gRPC
+import centralizador_pb2, centralizador_pb2_grpc
 
 
-# Os procedimentos oferecidos aos clientes precisam ser encapsulados
-#   em uma classe que herda do código do stub.
 class ArmazenamentoChaveValor(armazenamento_pb2_grpc.ArmazenamentoChaveValorServicer):
     def __init__(self, stop_event, porto, flag_ativacao):
         self._stop_event = stop_event
         self.armazem = {}
         self.porto = porto
         self.flag_ativacao = flag_ativacao
+        self.stub_central = None
 
     def inserir(self, request, context):
         chave = request.chave
@@ -63,7 +64,22 @@ class ArmazenamentoChaveValor(armazenamento_pb2_grpc.ArmazenamentoChaveValorServ
 
     def ativar(self, request, context):
         if self.flag_ativacao:
-            print(request.id_servico)
+            # Entrada: id_servico do servidor centralizador
+            id_servico_central = request.id_servico
+
+            # Faz a conexao com o servidor centralizador
+            channel_central = grpc.insecure_channel(id_servico_central)
+            self.stub_central = centralizador_pb2_grpc.CentralizadorChaveValorStub(channel_central)
+
+            # Registra o proprio id e as chaves que possui
+            self_id_servico_nome = socket.getfqdn()
+            self_id_servico = f"{self_id_servico_nome}:{self.porto}"
+            chaves = list(self.armazem.keys())
+            response = self.stub_central.registrar(
+                centralizador_pb2.RegisterRequest(id_servico=self_id_servico, chaves=chaves))
+
+            return armazenamento_pb2.ActivateResponse(retorno=len(chaves))
+
         else:
             return armazenamento_pb2.ActivateResponse(retorno=0)
 
@@ -88,10 +104,10 @@ def server_par():
 
     # O servidor precisa ser ligado ao objeto que identifica os
     #   procedimentos a serem executados.
-
     armazenamento_pb2_grpc.add_ArmazenamentoChaveValorServicer_to_server(
         ArmazenamentoChaveValor(stop_event, porto, flag_ativacao), server
     )
+
     # O método add_insecure_port permite a conexão direta por TCP
     server.add_insecure_port(f'0.0.0.0:{porto}')
 
